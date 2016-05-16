@@ -1,8 +1,8 @@
 FROM fedora:latest
 MAINTAINER  Kushal Das
 
-RUN dnf install -y python-flask python-pip redis python-redis
-RUN dnf install -y git python-feedparser
+RUN dnf install -y python3-flask python3-pip redis python3-redis
+RUN dnf install -y git python3-feedparser
 RUN mkdir /{source,output}
 RUN cd source;git clone https://github.com/kushaldas/personalfeed.git .
 ADD runfeed.sh /runfeed.sh
