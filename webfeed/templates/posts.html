@@ -1,8 +1,17 @@
 {% extends "layout.html" %}
+
+{% block extracss %}
+<link href="{{ url_for('static', filename='css/site.css') }}" rel="stylesheet">
+{% endblock %}
+
 {% block body %}
-
-{% for item in posts %}
-<div class="title">{{ item.title }}</div>
-{% endfor %}
-
+<div class="row">
+  <div class="col col-md-2 sidebar">
+  </div>
+  <div class="col col-md-10 col-sm-offset-2">
+    {% for item in posts %}
+      <div class="title">{{ item.title }}</div>
+    {% endfor %}
+ </div>
+</div>
 {% endblock %}
