@@ -2,6 +2,7 @@ import flask
 import json
 import logging
 import redis
+import anydbm
 from pprint import pprint
 import hashlib
 from flask import Flask, request
@@ -86,7 +87,10 @@ def addsite(group):
         hash = hashlib.sha1(url).hexdigest()
         rdb.hset('sites', url, hash)
         rdb.rpush('group:{0}'.format(grp), url)
-
+        # Now let us save the data in dbm
+        db = anydbm.open('/output/site.db', 'c')
+        db[url] = grp
+        db.close()
         return flask.render_template('addsites.html', group=group)
     else:
         return flask.render_template('addsites.html', group=group)
