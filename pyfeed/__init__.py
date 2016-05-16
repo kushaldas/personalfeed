@@ -49,6 +49,10 @@ def startpoint():
                 newd = {}
                 for k in ['summary','title','link','author','published']:
                     newd[k] = p[k]
+                if 'content' in p:
+                    newd['content'] = p['content']
+                else:
+                    newd['content'] = p['summary']
                 rdb.lpush(fullposts, json.dumps(newd))
                 unread += 1
         # Now all posts update, let us strip the list
