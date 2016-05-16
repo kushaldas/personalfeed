@@ -7,10 +7,18 @@
 {% block body %}
 <div class="row">
   <div class="col col-md-2 sidebar">
+    <ul class="nav nav-sidebar">
+      {% for item in allsites %}
+      <li><a href="/read/{{ item.value }}">{{ item.url }}</a> {{ item.unread }}</li>
+      {% endfor %}
+    </ul>
   </div>
   <div class="col col-md-10 col-sm-offset-2">
     {% for item in posts %}
-      <div class="title">{{ item.title }}</div>
+    <div class="postbox">
+      <h1 class="page-header">{{ item.title }}</h1>
+      {{ item.summary|safe }}
+    </div>
     {% endfor %}
  </div>
 </div>
