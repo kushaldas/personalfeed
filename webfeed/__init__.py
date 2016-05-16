@@ -84,7 +84,7 @@ def addsite(group):
         url = url.strip()
         grp = request.form['group']
         grp = grp.strip()
-        hash = hashlib.sha1(url).hexdigest()
+        hash = hashlib.sha1(url.encode()).hexdigest()
         rdb.hset('sites', url, hash)
         rdb.rpush('group:{0}'.format(grp), url)
         # Now let us save the data in dbm
