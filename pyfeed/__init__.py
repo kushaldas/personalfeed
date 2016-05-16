@@ -39,6 +39,8 @@ def startpoint():
         unread = rdb.hget(pturl, 'unread')
         if not unread:
             unread = 0
+        else:
+            unread = int(unread)
         for p in posts[::-1]:
             # First check if it is already in list.
             link = p['link']
