@@ -39,6 +39,7 @@ def get_all_site_details(name):
     sites = rdb.hgetall('sites')
     for k,v in sites.iteritems():
         unread = rdb.hget('pt:{0}'.format(v), 'unread')
+        k = '/'.join(k.split('/')[:3])
         data = SiteDetails(k, v, unread)
         if v == name.strip():
             data.current = True
