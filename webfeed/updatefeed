@@ -11,10 +11,14 @@ config = {
 
 rdb = redis.Redis(config['host'], config['port'], config['db'],\
                               config['password'])
+i = 0
 while True:
     try:
         r = rdb.brpop('updatejob', 0)
         pyfeed.startpoint()
     except:
         print("Oops")
+        i += 1
+        if i >= 100:
+            break
 
