@@ -8,11 +8,16 @@
 <div class="row">
   <div class="col col-md-2 sidebar">
     <ul class="nav nav-sidebar">
+      {% for group in allsites %}
+        {{ group.name }}
       <ul class="nav nav-pills">
-      {% for item in allsites %}
-      <li role="presentation" {% if item.current %}class="active"{% endif %}><a href="/read/{{ item.value }}">{{ item.url }} <span class="badge">{{ item.unread }}</span></a></li>
-      {% endfor %}
+
+        {% for item in group.items %}
+        <li role="presentation" {% if item.current %}class="active"{% endif %}><a href="/read/{{ item.value }}">{{ item.url }} <span class="badge">{{ item.unread }}</span></a></li>
+        {% endfor %}
+
       </ul>
+      {% endfor %}
     </ul>
   </div>
   <div class="col col-md-10 col-sm-offset-2">

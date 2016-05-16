@@ -3,6 +3,7 @@ import json
 import logging
 import redis
 from pprint import pprint
+import hashlib
 from flask import Flask, request
 
 log = logging.getLogger()
@@ -30,6 +31,13 @@ class SiteDetails(object):
         self.unread = unread
         self.current = current
 
+class GroupDetails(object):
+
+    def __init__(self, name):
+        self.name = name
+        self.items = []
+
+
 def get_all_site_details(name):
     """
     Creates the all sites details for the navbar
@@ -37,13 +45,19 @@ def get_all_site_details(name):
     """
     result = []
     sites = rdb.hgetall('sites')
-    for k,v in sites.iteritems():
-        unread = rdb.hget('pt:{0}'.format(v), 'unread')
-        k = '/'.join(k.split('/')[:3])
-        data = SiteDetails(k, v, unread)
-        if v == name.strip():
-            data.current = True
-        result.append(data)
+    groups = rdb.keys("group:*")
+    for g in groups:
+        ir = GroupDetails(g.split(':')[1])
+        gsites = rdb.lrange(g, 0, -1)
+        for k in gsites:
+            v = sites[k]
+            unread = rdb.hget('pt:{0}'.format(v), 'unread')
+            k = '/'.join(k.split('/')[:3])
+            data = SiteDetails(k, v, unread)
+            if v == name.strip():
+                data.current = True
+            ir.items.append(data)
+        result.append(ir)
     return result
 
 app = Flask(__name__)
@@ -61,6 +75,28 @@ def read_a_site(name):
     posts = rdb.lrange(fullposts, 0, -1)
     posts = [json.loads(p) for p in posts]
     return flask.render_template('posts.html', posts=posts, allsites=allsites)
+
+@app.route('/addsites/<group>/',methods=['GET', 'POST'])
+def addsite(group):
+    if request.method == 'POST':
+        url = request.form['url']
+        url = url.strip()
+        grp = request.form['group']
+        grp = grp.strip()
+        hash = hashlib.sha1(url).hexdigest()
+        rdb.hset('sites', url, hash)
+        rdb.rpush('group:{0}'.format(grp), url)
+
+        return flask.render_template('addsites.html', group=group)
+    else:
+        return flask.render_template('addsites.html', group=group)
+
+@app.route('/update/')
+def update_sites():
+    rdb.lpush('updatejob', "hello")
+    sites = rdb.hgetall('sites')
+    return flask.render_template('home.html', links=sites)
+
 
 
 if __name__ == '__main__':
