@@ -4,6 +4,7 @@ import logging
 import redis
 import dbm
 from pprint import pprint
+import os
 import hashlib
 from flask import Flask, request
 
@@ -23,6 +24,8 @@ config = {
 
 rdb = redis.Redis(config['host'], config['port'], config['db'],\
                               config['password'])
+
+DBNAME = None
 
 class SiteDetails(object):
 
@@ -48,11 +51,17 @@ def get_all_site_details(name):
     sites = rdb.hgetall('sites')
     groups = rdb.keys("group:*")
     for g in groups:
+        g = g.decode()
         ir = GroupDetails(g.split(':')[1])
         gsites = rdb.lrange(g, 0, -1)
         for k in gsites:
             v = sites[k]
+            k = k.decode()
+            v = v.decode()
             unread = rdb.hget('pt:{0}'.format(v), 'unread')
+            if not unread:
+                unread = b"0"
+            unread = unread.decode()
             k = '/'.join(k.split('/')[:3])
             data = SiteDetails(k, v, unread)
             if v == name.strip():
@@ -65,6 +74,7 @@ app = Flask(__name__)
 @app.route('/')
 def hello_world():
     sites = rdb.hgetall('sites')
+    sites = {k.decode():v.decode() for k,v in sites.items()}
     return flask.render_template('home.html', links=sites)
 
 @app.route('/read/<name>/')
@@ -74,7 +84,7 @@ def read_a_site(name):
     pturl = "pt:{0}".format(name)
     rdb.hset(pturl, 'unread', 0)
     posts = rdb.lrange(fullposts, 0, -1)
-    posts = [json.loads(p) for p in posts]
+    posts = [json.loads(p.decode()) for p in posts]
     return flask.render_template('posts.html', posts=posts, allsites=allsites)
 
 @app.route('/addsites/<group>/',methods=['GET', 'POST'])
@@ -88,7 +98,7 @@ def addsite(group):
         rdb.hset('sites', url, hash)
         rdb.rpush('group:{0}'.format(grp), url)
         # Now let us save the data in dbm
-        db = dbm.open('/output/site.db', 'c')
+        db = dbm.open(DBNAME, 'c')
         db[url] = grp
         db.close()
         return flask.render_template('addsites.html', group=group)
@@ -104,4 +114,8 @@ def update_sites():
 
 
 if __name__ == '__main__':
+    if os.path.exists('/output/'):
+        DBNAME = '/output/site.db'
+    else:
+        DBNAME = '/tmp/site.db'
     app.run(host='0.0.0.0', debug=True)
