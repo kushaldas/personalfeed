@@ -2,6 +2,9 @@ import redis
 import json
 import feedparser
 
+# http://blog.yjl.im/2013/12/workaround-of-libxml2-unsupported.html
+feedparser.PREFERRED_XML_PARSERS.remove('drv_libxml2')
+
 config = {
             'host': 'localhost',
             'port': 6379,
@@ -25,13 +28,19 @@ def missing_link(key, link):
     else:
         return False
 
+def safe_strings(s):
+    if type(s) == bytes:
+        return s.decode()
+    return s
 
 def startpoint():
     # first find all sites from the redis
 
     sites = rdb.hkeys('sites')
     for site in sites:
+        site = site.decode()
         val = rdb.hget('sites', site)
+        val = val.decode()
         fullposts = 'fullposts:{0}'.format(val)
         pturl = 'pt:{0}'.format(val)
         p = feedparser.parse(site)
@@ -48,11 +57,11 @@ def startpoint():
                 rdb.hset(pturl, link, True)
                 newd = {}
                 for k in ['summary','title','link','author','published']:
-                    newd[k] = p[k]
+                    newd[k] = safe_strings(p[k])
                 if 'content' in p:
-                    newd['content'] = p['content']
+                    newd['content'] = safe_strings(p['content'])
                 else:
-                    newd['content'] = p['summary']
+                    newd['content'] = safe_strings(p['summary'])
                 rdb.lpush(fullposts, json.dumps(newd))
                 unread += 1
         # Now all posts update, let us strip the list
