@@ -1,4 +1,4 @@
-FROM fedora:latest
+FROM fedora:23
 MAINTAINER  Kushal Das
 
 RUN dnf install -y python3-flask python3-pip redis python3-redis
