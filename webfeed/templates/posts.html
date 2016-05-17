@@ -24,7 +24,7 @@
     {% for item in posts %}
     <div class="postbox">
       <h1 class="page-header"><a href="{{ item.link }}">{{ item.title }}</a></h1>
-      {{ item.summary|safe }}
+      {{ item.content|safe }}
     </div>
     {% endfor %}
  </div>
