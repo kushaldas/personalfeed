@@ -1,6 +1,6 @@
 import copy
 import flask
-import json
+import pickle
 import logging
 from pprint import pprint
 import os
@@ -18,7 +18,8 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(message)s')
 
 RDB = {'sites':{}, 'groups':{}}
 
-DBNAME = None
+DBNAME = '/tmp/plfeed.db'
+
 
 class SiteDetails(object):
 
@@ -36,6 +37,12 @@ class GroupDetails(object):
     def __init__(self, name):
         self.name = name
         self.items = []
+
+def save_db():
+    "Saves all the information into a pickle file"
+    global RDB
+    with open(DBNAME, 'wb') as fobj:
+        pickle.dump(RDB, fobj)
 
 
 def get_all_site_details(name):
@@ -96,8 +103,12 @@ def addsite(group):
 def update_sites():
     global RDB
     RDB = startpoint(RDB)
+    save_db()
     return flask.redirect(flask.url_for('hello_world'))
 
+if os.path.exists(DBNAME):
+    with open(DBNAME, "rb") as fobj:
+        RDB = pickle.load(fobj)
 
 
 if __name__ == '__main__':
