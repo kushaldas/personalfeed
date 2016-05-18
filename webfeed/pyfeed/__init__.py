@@ -61,5 +61,4 @@ def startpoint(RDB):
                 site.unread += 1
         # Now all posts update, let us strip the list
         RDB[key] = site
-        pprint(RDB)
     return RDB
