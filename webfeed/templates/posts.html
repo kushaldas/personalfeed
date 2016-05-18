@@ -13,7 +13,7 @@
       <ul class="nav nav-pills">
 
         {% for item in group.items %}
-        <li role="presentation" {% if item.current %}class="active"{% endif %}><a href="/read/{{ item.value }}">{{ item.url }} <span class="badge">{{ item.unread }}</span></a></li>
+        <li role="presentation" {% if item.current %}class="active"{% endif %}><a href="/read/{{ item.hashvalue }}">{{ item.url }} <span class="badge">{{ item.unread }}</span></a></li>
         {% endfor %}
 
       </ul>
