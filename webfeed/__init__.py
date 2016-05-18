@@ -6,7 +6,7 @@ from pprint import pprint
 import os
 import hashlib
 from flask import Flask, request
-from pyfeed import startpoint
+from .pyfeed import startpoint
 
 log = logging.getLogger()
 log.level = logging.DEBUG
@@ -67,8 +67,9 @@ def hello_world():
 @app.route('/read/<name>/')
 def read_a_site(name):
     global RDB
+    if name not in RDB['sites']:
+        return flask.redirect(flask.url_for('hello_world')), 404
     allsites = get_all_site_details(name)
-    pprint(allsites)
     site = RDB['sites'][name]
     site.unread = 0
     RDB['sites'][name] = site
