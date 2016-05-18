@@ -30,9 +30,7 @@ def recreate_links(html_doc, url):
     return html_doc
 
 def startpoint(RDB):
-    # first find all sites from the redis
-
-
+    # Find the sites from the dict
     for key, site in RDB['sites'].items():
         p = feedparser.parse(site.feed)
         # Save the link to the site so that we can replace
