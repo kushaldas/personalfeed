@@ -1,3 +1,4 @@
+import copy
 import flask
 import json
 import logging
@@ -48,7 +49,7 @@ def get_all_site_details(name):
     for g, gsites in groups.items():
         ir = GroupDetails(g)
         for k in gsites:
-            data = RDB['sites'].get(k)
+            data = copy.deepcopy(RDB['sites'].get(k))
             if data.hashvalue == name.strip():
                 data.current = True
             ir.items.append(data)
